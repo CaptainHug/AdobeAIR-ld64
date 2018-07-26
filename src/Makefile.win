@@ -1,0 +1,42 @@
+ifeq ($(ARCH),x86)
+  #CXX := /usr/local/gcc-4.8.0-qt-4.8.4-for-mingw32/win32-gcc/bin/i586-mingw32-g++
+  CXX := C:\MinGW\bin\g++.exe
+  #CXX := g++.exe
+  ARCH_FLAGS=-m32 -D__i386__
+else
+  ifeq ($(ARCH),x86_64)
+    #CXX := /usr/local/gcc-4.8.0-qt-4.8.4-for-mingw32/win32-gcc/bin/i586-mingw32-g++
+	CXX := C:\MinGW\bin\g++.exe
+    ARCH_FLAGS=-m64 -D__x86_64__
+  endif
+endif
+
+#LIB_FLAGS=-static-libgcc -static-libstdc++ -dead_strip
+#LIB_FLAGS=-static-libgcc -static-libc++ -dead_strip
+LIB_FLAGS=-static-libgcc -std=c++11 -static-libstdc++ -dead_strip
+
+OPTS=-g -O3 -std=gnu++11 -D__LITTLE_ENDIAN__ $(ARCH_FLAGS) -D__DARWIN_UNIX03 -DNDEBUG -DWIN_LD64 -fmessage-length=0 -pipe -Wno-deprecated
+INCLUDE_FLAGS=-I../osxinclude -I../include -Iabstraction -Ild -Ild/parsers -Ild/passes -Ild/passes/stubs -Ild/parsers/libunwind -I../../md5  -I../xplatform-hacks/configure -include ../xplatform-hacks/xplatform-hacks-win.h -fpermissive
+
+.cpp.o:
+	$(CXX) $(OPTS) $(INCLUDE_FLAGS) -c -o $*.o $<
+
+.c.o:
+	$(CXX) $(OPTS) $(INCLUDE_FLAGS) -c -o $*.o $<
+
+OBJECTS=../../md5/md5.o ../xplatform-hacks/xplatform-hacks.o ../xplatform-hacks/xplatform-hacks-win.o ../../libgw32c/strlcpy.o \
+  ld/Options.o ld/ld.o ld/debugline.o ld/Resolver.o ld/InputFiles.o ld/SymbolTable.o ld/OutputFile.o \
+  ld/passes/compact_unwind.o ld/passes/dylibs.o ld/passes/huge.o ld/passes/branch_island.o ld/passes/stubs/stubs.o \
+  ld/passes/branch_shim.o ld/passes/got.o ld/passes/objc.o ld/passes/tlvp.o ld/passes/order.o\
+  ld/parsers/archive_file.o  ld/parsers/opaque_section_file.o ld/parsers/macho_relocatable_file.o ld/parsers/macho_dylib_file.o ld/parsers/textstub_dylib_file.o
+
+# Files not included in the build -  
+# ld/passes/dtrace_dof.o ld/parsers/lto_file.o
+
+all: ld64 prunetrie
+
+ld64: $(OBJECTS)
+	$(CXX) $(ARCH_FLAGS) $(LIB_FLAGS) $(OBJECTS) -o ../ld64.exe
+
+prunetrie: other/PruneTrie.o
+

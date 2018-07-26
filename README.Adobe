@@ -1,0 +1,32 @@
+This directory contains a modified copy of ld64-253.3, originally downloaded from http://www.opensource.apple.com/source/ld64/ld64-253.3/
+
+Modifications
+=============
+
+Several modifications have been made, primarily so that it can be compiled with MinGW on OSX to run on win32 platforms:
+- use of strlcpy implementation from libgw32c
+- use of external md5 library to generate LC_UUID data
+- misc changes to the file IO code to support win32
+- unneeded syscalls have either been stubbed or commented out
+- branch island support backported from ld64-96.5
+- Making the minimum deployment target for OSX as 10.7
+Most of these modifications have been made in existing code, however several new source files have been added (all new source files exist under the 'xplatform-hacks' directory). Additionally, several Makefiles have been added to allow building the code from the commandline.
+
+All the changes done in ld code to build on mac and windows have been marked by the tag //[Adobe changes]
+
+Building
+========
+
+To compile binaries for OSX you simply:
+Build using the checked-in Xcode Project.
+
+To compile win32 binaries you first need to install a suitable MinGW cross compiler (one can be found here http://www.mingw.org/) then:
+make clean && make win
+
+
+Licensing
+=========
+
+All modifications and additional files in this package are licensed under the same APSL license that the rest of the package uses.
+
+
